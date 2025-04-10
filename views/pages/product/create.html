@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'Produk')
+
+@section('content')
+&lt;div class=&quot;page-wrapper&quot;&gt;
+  &lt;div class=&quot;page-breadcrumb&quot;&gt;
+      &lt;div class=&quot;row align-items-center&quot;&gt;
+          &lt;div class=&quot;col-6&quot;&gt;
+              &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+                  &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+                    &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+                    &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;Produk&lt;/li&gt;
+                  &lt;/ol&gt;
+                &lt;/nav&gt;
+              &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;Produk&lt;/h1&gt; 
+          &lt;/div&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;container-fluid&quot;&gt;
+      &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-12&quot;&gt;
+          &lt;div class=&quot;card&quot;&gt;
+            &lt;div class=&quot;card-body&quot;&gt;
+              &lt;form class=&quot;form-horizontal form-material mx-2&quot; method=&quot;POST&quot; enctype=&quot;multipart/form-data&quot; action=&quot;{{ route('product.store') }}&quot;&gt;
+                @csrf
+                &lt;div class=&quot;row&quot;&gt;
+                  &lt;div class=&quot;col-md-6&quot;&gt;
+                    &lt;div class=&quot;form-group&quot;&gt;
+                      &lt;label for=&quot;name&quot; class=&quot;col-md-12&quot;&gt;Nama Produk &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;text&quot; name=&quot;name&quot; id=&quot;name&quot; class=&quot;form-control form-control-line @error('name') is-invalid @enderror&quot; value=&quot;{{ old('name') }}&quot;&gt;
+                        @error('name')
+                          &lt;div class=&quot;invalid-feedback&quot;&gt;
+                            Nama produk harus diisi!
+                          &lt;/div&gt;
+                        @enderror
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;col-md-6&quot;&gt;
+                    &lt;div class=&quot;form-group&quot;&gt;
+                      &lt;label for=&quot;image&quot; class=&quot;col-md-12&quot;&gt;Gambar Produk &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;file&quot; name=&quot;image&quot; id=&quot;image&quot; class=&quot;form-control form-control-line @error('image') is-invalid @enderror&quot;&gt;
+                        @error('image')
+                          &lt;div class=&quot;invalid-feedback&quot;&gt;
+                            Gambar produk harus diisi!
+                          &lt;/div&gt;
+                        @enderror
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=&quot;row&quot;&gt;
+                  &lt;div class=&quot;col-md-6&quot;&gt;
+                    &lt;div class=&quot;form-group&quot;&gt;
+                      &lt;label for=&quot;price&quot; class=&quot;col-md-12&quot;&gt;Harga &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;text&quot; name=&quot;price&quot; id=&quot;price&quot; class=&quot;form-control form-control-line @error('price') is-invalid @enderror&quot; value=&quot;{{ old('price') }}&quot; onchange=&quot;formatRupiah(this)&quot;&gt;
+                        @error('price')
+                          &lt;div class=&quot;invalid-feedback&quot;&gt;
+                            Harga produk harus diisi!
+                          &lt;/div&gt;
+                        @enderror
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;col-md-6&quot;&gt;
+                    &lt;div class=&quot;form-group&quot;&gt;
+                      &lt;label for=&quot;stock&quot; class=&quot;col-md-12&quot;&gt;Stok &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;number&quot; name=&quot;stock&quot; id=&quot;stock&quot; class=&quot;form-control form-control-line @error('stock') is-invalid @enderror&quot; value=&quot;{{ old('stock') }}&quot;&gt;
+                        @error('stock')
+                          &lt;div class=&quot;invalid-feedback&quot;&gt;
+                            Stok produk harus diisi!
+                          &lt;/div&gt;
+                        @enderror
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=&quot;row justify-content-end&quot;&gt;
+                  &lt;div class=&quot;col text-end&quot;&gt;
+                    &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary w-25&quot;&gt;Simpan&lt;/button&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/form&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+@push('script')
+  &lt;script&gt;
+    const priceInput = document.querySelector('#price')
+
+    function formatRupiah(value) {
+      return new Intl.NumberFormat(&quot;id-ID&quot;, {
+        style: &quot;currency&quot;,
+        currency: &quot;IDR&quot;,
+        minimumFractionDigits: 0
+      }).format(value).replace(&quot;Rp&quot;, &quot;Rp. &quot;).trim();
+    }
+
+    document.addEventListener(&quot;DOMContentLoaded&quot;, function() {
+      priceInput.addEventListener(&quot;input&quot;, function () {
+        let rawValue = this.value.replace(/[^0-9]/g, &quot;&quot;);
+        this.dataset.rawValue = rawValue;
+        this.value = formatRupiah(rawValue);
+      });
+
+      document.querySelector(&quot;form&quot;).addEventListener(&quot;submit&quot;, function (e) {
+        priceInput.value = priceInput.dataset.rawValue || &quot;0&quot;;
+      });
+    })
+  &lt;/script&gt;
+@endpush
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

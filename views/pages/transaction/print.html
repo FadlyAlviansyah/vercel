@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      &lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;id&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;Bukti Transaksi&lt;/title&gt;
+    &lt;style&gt;
+        body {
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+        }
+        .table { 
+          width: 100%; 
+          border-collapse: collapse; 
+
+        }
+        .table thead{
+          background-color: lightgray; 
+          border-bottom: 1px solid black;
+        }
+        .table tr{
+          border-bottom: 1px solid black;
+        }
+        .table tfoot{
+          background-color: lightgray; 
+        }
+        .table th, .table td { 
+          padding: 8px;
+          text-align: left; 
+        }
+        .row{
+          display: flex;
+          justify-content: space-between;
+        }
+        .footer{
+          text-align: center
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class=&quot;container&quot;&gt;
+    &lt;div class=&quot;header&quot;&gt;
+      &lt;h2 style=&quot;text-align: center;&quot;&gt;Bukti Transaksi&lt;/h2&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;body&quot;&gt;
+      &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col&quot;&gt;
+          &lt;p&gt;&lt;strong&gt;Nama Pelanggan:&lt;/strong&gt; {{ $transaction-&gt;member ? $transaction-&gt;member-&gt;name : 'Non-Member' }}&lt;/p&gt;
+          &lt;p&gt;&lt;strong&gt;Bergabung Sejak:&lt;/strong&gt; {{ $transaction-&gt;member ? $transaction-&gt;member-&gt;created_at-&gt;translatedFormat('d F Y') : '-' }}&lt;/p&gt;
+          &lt;p&gt;&lt;strong&gt;Poin Member:&lt;/strong&gt; {{ $transaction-&gt;member ? $transaction-&gt;member-&gt;points : '-' }}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;col&quot;&gt;
+          &lt;p&gt;&lt;strong&gt;Invoice - #{{ str_pad($transaction-&gt;id, 4, '0', STR_PAD_LEFT) }}&lt;/strong&gt;&lt;/p&gt;
+          &lt;p&gt;&lt;strong&gt;Tanggal Transaksi:&lt;/strong&gt; {{ $transaction-&gt;created_at-&gt;translatedFormat('d F Y') }}&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;row&quot;&gt;
+        &lt;table class=&quot;table&quot;&gt;
+          &lt;thead&gt;
+            &lt;tr&gt;
+              &lt;th&gt;Nama Produk&lt;/th&gt;
+              &lt;th&gt;Kuantitas&lt;/th&gt;
+              &lt;th&gt;Harga&lt;/th&gt;
+              &lt;th&gt;Subtotal&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            @foreach ($transaction-&gt;transactionDetail as $item)
+            &lt;tr&gt;
+              &lt;td&gt;{{ $item-&gt;product-&gt;name }}&lt;/td&gt;
+              &lt;td&gt;{{ $item-&gt;quantity }}&lt;/td&gt;
+              &lt;td&gt;Rp {{ number_format($item-&gt;product-&gt;price, 0, ',', '.') }}&lt;/td&gt;
+              &lt;td&gt;Rp {{ number_format($item-&gt;subtotal, 0, ',', '.') }}&lt;/td&gt;
+            &lt;/tr&gt;
+            @endforeach
+          &lt;/tbody&gt;
+          &lt;tfoot&gt;
+            &lt;tr&gt;
+              &lt;th colspan=&quot;3&quot; style=&quot;text-align: right;&quot;&gt;Poin yang Digunakan:&lt;/th&gt;
+              &lt;th&gt;{{ $transaction-&gt;points_used }}&lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th colspan=&quot;3&quot; style=&quot;text-align: right;&quot;&gt;Diskon:&lt;/th&gt;
+              &lt;th&gt;Rp {{ number_format($transaction-&gt;points_used, 0, ',', '.') }}&lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th colspan=&quot;3&quot; style=&quot;text-align: right;&quot;&gt;Total Harga yang Harus di Bayar:&lt;/th&gt;
+              &lt;th&gt;Rp {{ number_format($transaction-&gt;total, 0, ',', '.') }}&lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th colspan=&quot;3&quot; style=&quot;text-align: right;&quot;&gt;Total Bayar:&lt;/th&gt;
+              &lt;th&gt;Rp {{ number_format($transaction-&gt;amount_paid, 0, ',', '.') }}&lt;/th&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+              &lt;th colspan=&quot;3&quot; style=&quot;text-align: right;&quot;&gt;Kembalian&lt;/th&gt;
+              &lt;th&gt;Rp {{ number_format($transaction-&gt;amount_change, 0, ',', '.') }}&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/tfoot&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;footer&quot;&gt;
+      &lt;p&gt;&lt;strong&gt;Kasir:&lt;/strong&gt; {{ $transaction-&gt;user-&gt;name }}&lt;/p&gt;
+      &lt;p&gt;Terima kasih telah berbelanja!&lt;/p&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

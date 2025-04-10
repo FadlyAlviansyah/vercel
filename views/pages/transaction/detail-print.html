@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'Penjualan')
+
+@section('content')
+&lt;div class=&quot;page-wrapper&quot;&gt;
+  &lt;div class=&quot;page-breadcrumb &quot;&gt;
+    &lt;div class=&quot;row align-items-center&quot;&gt;
+      &lt;div class=&quot;col-6&quot;&gt;
+        &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+          &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+            &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;Penjualan&lt;/li&gt;
+          &lt;/ol&gt;
+        &lt;/nav&gt;
+        &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;Penjualan&lt;/h1&gt; 
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;container d-flex flex-column&quot; style=&quot;min-height: 500px&quot;&gt;
+    &lt;div class=&quot;row bg-light px-3 py-4&quot;&gt;
+      &lt;div class=&quot;col-12&quot;&gt;
+        &lt;div class=&quot;card p-4&quot;&gt;
+          &lt;div class=&quot;card-body&quot;&gt;
+            &lt;div class=&quot;invoice-header&quot;&gt;
+              &lt;div class=&quot;row&quot;&gt;
+                &lt;div class=&quot;col-12&quot;&gt;
+                  &lt;a href=&quot;{{ route('transaction.print', $transaction-&gt;id) }}&quot; class=&quot;btn btn-primary&quot;&gt;Unduh&lt;/a&gt;
+                  &lt;a href=&quot;{{ route('transaction.home') }}&quot; class=&quot;btn btn-secondary&quot;&gt;Kembali&lt;/a&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;row mt-3&quot;&gt;
+                &lt;div class=&quot;col-lg-9 col-md-12&quot;&gt;
+                  &lt;div class=&quot;invoice-details&quot;&gt;
+                    @if ($transaction-&gt;member)
+                    &lt;address&gt;
+                      &lt;b&gt;{{ $transaction-&gt;member-&gt;name }}&lt;/b&gt;
+                      &lt;br&gt;
+                      MEMBER SEJAK : {{ $transaction-&gt;member-&gt;created_at-&gt;translatedFormat('d F Y') }}
+                      &lt;br&gt;
+                      MEMBER POIN : {{ $transaction-&gt;member-&gt;points }}
+                    &lt;/address&gt;
+                    @endif
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=&quot;col-lg-3 col-md-12&quot;&gt;
+                  &lt;div class=&quot;invoice-details&quot;&gt;
+                    &lt;div&gt;Invoice - #{{ str_pad($transaction-&gt;id, 4, '0', STR_PAD_LEFT) }}&lt;/div&gt;
+                    &lt;div&gt;{{ $transaction-&gt;created_at-&gt;translatedFormat('d F Y') }}&lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;invoice-body&quot;&gt;
+              &lt;div class=&quot;row&quot;&gt;
+                &lt;div class=&quot;col-lg-12 col-md-12 col-sm-12&quot;&gt;
+                  &lt;div class=&quot;table-responsive&quot;&gt;
+                    &lt;table class=&quot;table&quot;&gt;
+                      &lt;thead&gt;
+                        &lt;tr&gt;
+                          &lt;th scope=&quot;col&quot;&gt;Produk&lt;/th&gt;
+                          &lt;th scope=&quot;col&quot;&gt;Harga&lt;/th&gt;
+                          &lt;th scope=&quot;col&quot;&gt;Kuantitas&lt;/th&gt;
+                          &lt;th scope=&quot;col&quot;&gt;Sub Total&lt;/th&gt;
+                        &lt;/tr&gt;
+                      &lt;/thead&gt;
+                      &lt;tbody&gt;
+                        @foreach ($transaction-&gt;transactionDetail as $detail)
+                            &lt;tr&gt;
+                                &lt;td&gt;{{ $detail-&gt;product-&gt;name }}&lt;/td&gt;
+                                &lt;td&gt;Rp. {{ number_format($detail-&gt;product-&gt;price, 0, ',', '.') }}&lt;/td&gt;
+                                &lt;td&gt;{{ $detail-&gt;quantity }}&lt;/td&gt;
+                                &lt;td&gt;Rp. {{ number_format($detail-&gt;subtotal, 0, ',', '.') }}&lt;/td&gt;
+                            &lt;/tr&gt;
+                        @endforeach
+                      &lt;/tbody&gt;
+                    &lt;/table&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;div class=&quot;invoice-footer&quot;&gt;
+              &lt;div class=&quot;row&quot;&gt;
+                &lt;div class=&quot;col-lg-9 col-md-12 bg-light px-4 py-3&quot;&gt;
+                  &lt;div class=&quot;row&quot;&gt;
+                    &lt;div class=&quot;col-lg-3 col-12&quot;&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;small&gt;POIN DIGUNAKAN&lt;/small&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;span class=&quot;fw-semibold&quot;&gt;{{ $transaction-&gt;points_used }}&lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class=&quot;col-lg-3 col-12&quot;&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;small&gt;KASIR&lt;/small&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;span class=&quot;fw-semibold&quot;&gt;{{ $transaction-&gt;user-&gt;name }}&lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class=&quot;col-lg-3 col-12&quot;&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;small&gt;TOTAL BAYAR&lt;/small&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;span class=&quot;fw-semibold&quot;&gt;Rp. {{ number_format($transaction-&gt;amount_paid, 0, ',', '.') }}&lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class=&quot;col-lg-3 col-12&quot;&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;small&gt;KEMBALIAN&lt;/small&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;row&quot;&gt;
+                        &lt;span class=&quot;fw-semibold&quot;&gt;Rp. {{ number_format($transaction-&gt;amount_change, 0, ',', '.') }}&lt;/span&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=&quot;col-lg-3 col-12 bg-dark d-flex px-4 py-3&quot;&gt;
+                  &lt;small class=&quot;text-light&quot;&gt;TOTAL&lt;/small&gt;
+                  &lt;span class=&quot;fw-semibold fs-1 text-white ms-3&quot;&gt;Rp. {{ number_format($transaction-&gt;total, 0, ',', '.') }}&lt;/span&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

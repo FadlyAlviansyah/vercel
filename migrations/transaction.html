@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      Schema::create('transactions', function (Blueprint $table) {
+        $table-&gt;id();
+        $table-&gt;foreignId('member_id')-&gt;nullable()-&gt;constrained('members');
+        $table-&gt;foreignId('user_id')-&gt;constrained('users');
+        $table-&gt;integer('points_used');
+        $table-&gt;integer('total');
+        $table-&gt;integer('amount_paid');
+        $table-&gt;integer('amount_change');
+        $table-&gt;timestamps();
+        $table-&gt;softDeletes();
+      });
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

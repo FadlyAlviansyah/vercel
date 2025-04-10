@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <pre>
+      <code lang="php">
+        &lt;?php
+
+        namespace App\Http\Middleware;
+
+        use Auth;
+        use Closure;
+        use Illuminate\Http\Request;
+        use Symfony\Component\HttpFoundation\Response;
+
+        class CheckRole
+        {
+          /**
+          * Handle an incoming request.
+          *
+          * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+          */
+          public function handle(Request $request, Closure $next, $role): Response
+          {
+            $user = Auth::user();
+
+            if (!$user) {
+                return redirect()-&gt;route('login');
+            }
+
+            if ($user-&gt;role !== $role) {
+                return response()-&gt;json(['message' =&gt; 'Unauthorized'], 403);
+            }
+
+            return $next($request);
+          }
+        }
+      </code>
+    </pre>
+  </body>
+  <script>
+    document.body.style.zoom = "1%";
+  </script>
+</html>

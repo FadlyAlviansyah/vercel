@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'Penjualan')
+
+@section('content')
+&lt;div class=&quot;page-wrapper&quot;&gt;
+  &lt;div class=&quot;page-breadcrumb&quot;&gt;
+      &lt;div class=&quot;row align-items-center&quot;&gt;
+          &lt;div class=&quot;col-6&quot;&gt;
+              &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+                  &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+                    &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+                    &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;Penjualan&lt;/li&gt;
+                  &lt;/ol&gt;
+                &lt;/nav&gt;
+              &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;Penjualan&lt;/h1&gt; 
+          &lt;/div&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;container-fluid&quot;&gt;
+      &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-12&quot;&gt;
+          &lt;div class=&quot;card&quot;&gt;
+              &lt;div class=&quot;card-body&quot;&gt;
+                &lt;div class=&quot;row justify-content-end mb-3&quot;&gt;
+                  &lt;div class=&quot;col text-start&quot;&gt;
+                    &lt;a href=&quot;{{ route('transaction.export-excel') }}&quot; class=&quot;btn btn-info&quot;&gt;Export Penjualan (.xlsx)&lt;/a&gt;
+                  &lt;/div&gt;
+                  @if (Auth::user()-&gt;role === 'cashier')
+                    &lt;div class=&quot;col text-end&quot;&gt;
+                      &lt;a href=&quot;{{ route('transaction.create') }}&quot; class=&quot;btn btn-primary&quot;&gt;Tambah Penjualan&lt;/a&gt;
+                    &lt;/div&gt;
+                  @endif
+                &lt;/div&gt;
+                &lt;div class=&quot;table-responsive&quot;&gt;
+                  &lt;table id=&quot;salesTable&quot; class=&quot;table&quot;&gt;
+                    &lt;thead&gt;
+                        &lt;tr&gt;
+                            &lt;th scope=&quot;col&quot;&gt;#&lt;/th&gt;
+                            &lt;th scope=&quot;col&quot;&gt;Nama Pelanggan&lt;/th&gt;
+                            &lt;th scope=&quot;col&quot;&gt;Tanggal Penjualan&lt;/th&gt;
+                            &lt;th scope=&quot;col&quot;&gt;Total Harga&lt;/th&gt;
+                            &lt;th scope=&quot;col&quot;&gt;Dibuat Oleh&lt;/th&gt;
+                        &lt;/tr&gt;
+                    &lt;/thead&gt;
+                    &lt;tbody&gt;
+                      @php
+                        $i = 1;
+                      @endphp
+                      @foreach ($transactions as $transaction)
+                        &lt;tr&gt;
+                          &lt;td class=&quot;text-start&quot;&gt;{{ $i++ }}&lt;/td&gt;
+                          &lt;td&gt;{{ $transaction-&gt;member ? $transaction-&gt;member-&gt;name : 'Non-Member' }}&lt;/td&gt;
+                          &lt;td&gt;{{ $transaction-&gt;created_at-&gt;format('d-m-Y') }}&lt;/td&gt;
+                          &lt;td&gt;Rp {{ number_format($transaction-&gt;total, 0, ',', '.') }}&lt;/td&gt;
+                          &lt;td&gt;{{ $transaction-&gt;user-&gt;name }}&lt;/td&gt;
+                          &lt;td&gt;
+                            &lt;button type=&quot;button&quot; class=&quot;btn btn-warning&quot; data-bs-toggle=&quot;modal&quot; data-bs-target=&quot;#showDetailModal-{{ $transaction['id'] }}&quot;&gt;Lihat&lt;/button&gt;
+                            &lt;a href=&quot;{{ route('transaction.print', $transaction['id']) }}&quot; class=&quot;btn btn-info ms-3&quot;&gt;Unduh Bukti&lt;/a&gt;
+                            &lt;div class=&quot;modal fade&quot; id=&quot;showDetailModal-{{ $transaction['id'] }}&quot; tabindex=&quot;-1&quot; aria-labelledby=&quot;showDetailModal&quot; aria-hidden=&quot;true&quot;&gt;
+                              &lt;div class=&quot;modal-dialog&quot;&gt;
+                                &lt;div class=&quot;modal-content&quot;&gt;
+                                  &lt;div class=&quot;modal-header&quot;&gt;
+                                    &lt;h1 class=&quot;modal-title fs-5&quot; id=&quot;showDetailModal&quot;&gt;Detail Penjualan&lt;/h1&gt;
+                                    &lt;button type=&quot;button&quot; class=&quot;btn-close&quot; data-bs-dismiss=&quot;modal&quot; aria-label=&quot;Close&quot;&gt;&lt;/button&gt;
+                                  &lt;/div&gt;
+                                  &lt;div class=&quot;modal-body&quot;&gt;
+                                    &lt;div class=&quot;row&quot;&gt;
+                                      &lt;div class=&quot;col-6&quot;&gt;
+                                        &lt;small&gt;
+                                          Member Status : {{ $transaction-&gt;member ? 'Member' : 'Bukan Member' }}
+                                          &lt;br&gt;
+                                          No. HP : {{ $transaction-&gt;member ? $transaction-&gt;member-&gt;phone_number : '-' }}
+                                          &lt;br&gt;
+                                          Poin Member : {{ $transaction-&gt;member ? $transaction-&gt;member-&gt;points : '-' }}
+                                        &lt;/small&gt;
+                                      &lt;/div&gt;
+                                      &lt;div class=&quot;col-6&quot;&gt;
+                                        &lt;small&gt;
+                                          Bergabung Sejak : {{ $transaction-&gt;member ? $transaction-&gt;member-&gt;created_at-&gt;translatedFormat('d F Y') : '-' }}
+                                        &lt;/small&gt;
+                                      &lt;/div&gt;
+                                    &lt;/div&gt;
+                                    &lt;div class=&quot;row mt-3&quot;&gt;
+                                      &lt;table class=&quot;table table-borderless&quot;&gt;
+                                        &lt;thead&gt;
+                                          &lt;tr&gt;
+                                            &lt;th&gt;Nama Produk&lt;/th&gt;
+                                            &lt;th&gt;Qty&lt;/th&gt;
+                                            &lt;th&gt;Harga&lt;/th&gt;
+                                            &lt;th&gt;Sub Total&lt;/th&gt;
+                                          &lt;/tr&gt;
+                                        &lt;/thead&gt;
+                                        &lt;tbody&gt;
+                                          @foreach ($transaction-&gt;transactionDetail as $item)
+                                            &lt;tr&gt;
+                                              &lt;td class=&quot;pt-0&quot;&gt;{{ $item-&gt;product-&gt;name }}&lt;/td&gt;
+                                              &lt;td class=&quot;pt-0&quot;&gt;{{ $item-&gt;quantity }}&lt;/td&gt;
+                                              &lt;td class=&quot;pt-0&quot;&gt;Rp. {{ number_format($item-&gt;product-&gt;price, 0, ',', '.') }}&lt;/td&gt;
+                                              &lt;td class=&quot;pt-0&quot;&gt;Rp. {{ number_format($item-&gt;subtotal, 0, ',', '.') }}&lt;/td&gt;
+                                            &lt;/tr&gt;
+                                          @endforeach
+                                          &lt;tr&gt;
+                                            &lt;th colspan=&quot;3&quot; class=&quot;text-end&quot;&gt;Total&lt;/th&gt;
+                                            &lt;th&gt;Rp. {{ number_format($transaction-&gt;total, 0, ',', '.') }}&lt;/th&gt;
+                                          &lt;/tr&gt;
+                                        &lt;/tbody&gt;
+                                      &lt;/table&gt;
+                                    &lt;/div&gt;
+                                    &lt;div class=&quot;row&quot;&gt;
+                                      &lt;div class=&quot;text-center&quot;&gt;Dibuat pada : {{ $transaction-&gt;created_at }}&lt;/div&gt;
+                                      &lt;div class=&quot;text-center&quot;&gt;Oleh : {{ $transaction-&gt;user-&gt;name }}&lt;/div&gt;
+                                    &lt;/div&gt;
+                                  &lt;/div&gt;
+                                  &lt;div class=&quot;modal-footer&quot;&gt;
+                                    &lt;button type=&quot;button&quot; class=&quot;btn btn-secondary&quot; data-bs-dismiss=&quot;modal&quot;&gt;Tutup&lt;/button&gt;
+                                  &lt;/div&gt;
+                                &lt;/div&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/td&gt;
+                        &lt;/tr&gt;
+                      @endforeach
+                    &lt;/tbody&gt;
+                  &lt;/table&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+
+@push('script')
+  &lt;script&gt;
+    $(document).ready(function() {
+      $('#salesTable').DataTable({
+        &quot;language&quot;: {
+          &quot;emptyTable&quot;: &quot;Tidak ada data tersedia&quot;,
+          &quot;search&quot;: &quot;Cari:&quot;,
+          &quot;lengthMenu&quot;: &quot;Tampilkan _MENU_ entri&quot;,
+          &quot;info&quot;: &quot;Menampilkan _START_ hingga _END_ dari _TOTAL_ entri&quot;,
+          &quot;infoEmpty&quot;: &quot;Menampilkan 0 hingga 0 dari 0 entri&quot;,
+          &quot;paginate&quot;: {
+            &quot;first&quot;: &quot;Pertama&quot;,
+            &quot;last&quot;: &quot;Terakhir&quot;,
+            &quot;next&quot;: &quot;Selanjutnya&quot;,
+            &quot;previous&quot;: &quot;Sebelumnya&quot;
+          }
+        },
+        &quot;columnDefs&quot;: [
+          { &quot;width&quot;: &quot;50px&quot;, &quot;targets&quot;: 0 },
+          { &quot;width&quot;: &quot;220px&quot;, &quot;targets&quot;: 5 },
+          { &quot;orderable&quot;: false, &quot;targets&quot;: 5 },
+        ]
+      });
+    });
+    
+  &lt;/script&gt;
+@endpush
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

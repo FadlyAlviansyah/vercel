@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+    <pre>
+        <code lang="php">
+        &lt;?php
+
+        namespace App\Http\Controllers;
+
+        use App\Models\Member;
+        use App\Models\Product;
+        use App\Models\Transaction;
+        use App\Models\TransactionDetail;
+        use Barryvdh\DomPDF\Facade\Pdf;
+        use Dotenv\Validator;
+        use Illuminate\Http\Request;
+        use PhpOffice\PhpSpreadsheet\Spreadsheet;
+        use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+        use Illuminate\Support\Facades\Storage;
+        use Symfony\Component\HttpFoundation\StreamedResponse;
+
+        class TransactionController extends Controller
+        {
+            public function index()
+            {
+                $transactions = Transaction::with('member', 'user', 'transactionDetail.product')-&gt;orderBy('created_at', 'desc')-&gt;get();
+                return view('pages.transaction.index', compact('transactions'));
+            }
+
+            public function create()
+            {
+                $products = Product::all();
+                return view('pages.transaction.create', compact('products'));
+            }
+
+            public function store(Request $request)
+            {
+                $validatedData = $request-&gt;validate([
+                    'user_id' =&gt; 'required|exists:users,id',
+                    'phone_number' =&gt; 'nullable|string|max:15',
+                    'total' =&gt; 'required|numeric|decimal:0,2',
+                    // 'points_used' =&gt; 'nullable', 
+                    'amount_paid' =&gt; 'required',
+                    'items' =&gt; 'required', 
+                    'items.*.product_id' =&gt; 'nullable|exists:products,id', 
+                    'items.*.quantity' =&gt; 'required|integer|min:1', 
+                    'items.*.subtotal' =&gt; 'required|numeric|decimal:0,2',
+                ]);
+
+                $amountPaid = preg_replace('/[^0-9]/', '', $request-&gt;amount_paid);
+                $amountPaid = (int)$amountPaid;
+                $amountChange = $amountPaid - $validatedData['total'];
+                $items = is_string($request-&gt;items) ? json_decode($request-&gt;items, true) : $request-&gt;items;
+
+                if ($validatedData['phone_number']) {
+                    return redirect()-&gt;route('transaction.create-member')-&gt;with([
+                        'phone_number' =&gt; $validatedData['phone_number'],
+                        'items' =&gt; $items,
+                        'total' =&gt; $validatedData['total'],
+                        'amount_paid' =&gt; $amountPaid,
+                        'amount_change' =&gt; $amountChange,
+                    ]);
+                }
+
+                $transaction = Transaction::create([
+                    'user_id' =&gt; $validatedData['user_id'],
+                    'total' =&gt; $validatedData['total'],
+                    'points_used' =&gt; 0,
+                    'amount_paid' =&gt; $amountPaid,
+                    'amount_change' =&gt; $amountChange,
+                ]);
+
+                foreach ($items as $item) {
+                    $product = Product::find($item['id']);
+                    if ($product) {
+                        $product-&gt;stock -= $item['quantity'];
+                        $product-&gt;save();
+                    }
+
+                    TransactionDetail::create([
+                        'transaction_id' =&gt; $transaction-&gt;id,
+                        'product_id' =&gt; $item['id'],
+                        'quantity' =&gt; $item['quantity'],
+                        'subtotal' =&gt; $item['price'] * $item['quantity']
+                    ]);
+                };
+
+                $data = compact('transaction', 'items');
+
+                return redirect()-&gt;route('transaction.detail-print', $transaction-&gt;id)-&gt;with('data', $data);
+            }
+
+            public function createMember(Request $request)
+            {
+                $phoneNumber = $request-&gt;session()-&gt;get('phone_number', null);
+                $items = $request-&gt;session()-&gt;get('items', []);
+                $total = $request-&gt;session()-&gt;get('total', 0);
+                $amountPaid = $request-&gt;session()-&gt;get('amount_paid', 0);
+                $amountChange = $request-&gt;session()-&gt;get('amount_change', 0);
+                $points = $total / 100;
+                $memberName = '';
+                $isNewMember = true;
+
+                $member = Member::where('phone_number', $phoneNumber)-&gt;first();
+                if ($member) {
+                    $points = $member['points'] + $points;
+                    $memberName = $member-&gt;name;
+                    $isNewMember = false;
+                }
+
+                $request-&gt;session()-&gt;forget(['items', 'total', 'amount_paid', 'amount_change', 'points']);
+            
+                return view('pages.transaction.create-member', compact('items', 'total', 'amountPaid', 'amountChange', 'points', 'phoneNumber', 'memberName', 'isNewMember'));
+            }
+
+            public function storeMember(Request $request) 
+            {
+                $validatedData = $request-&gt;validate([
+                    'user_id' =&gt; 'required|exists:users,id',
+                    'phone_number' =&gt; 'required',
+                    'name' =&gt; 'required',
+                    'points' =&gt; 'required|integer',
+                    'points_used' =&gt; 'nullable|integer|min:0',
+                    'items' =&gt; 'required',
+                    'total' =&gt; 'required|integer',
+                    'amount_paid' =&gt; 'required|integer',
+                    'amount_change' =&gt; 'required|integer',
+                ]);
+
+                $member = Member::where('phone_number', $validatedData['phone_number'])-&gt;first();
+                if (!$member) {
+                    $member = Member::create([
+                        'name' =&gt; $validatedData['name'],
+                        'phone_number' =&gt; $validatedData['phone_number'],
+                        'points' =&gt; 0,
+                    ]);
+                }
+
+                $pointsEarned = $validatedData['total'] / 100;
+
+                $transaction = Transaction::create([
+                    'user_id' =&gt; $validatedData['user_id'],
+                    'member_id' =&gt; $member ? $member-&gt;id : null,
+                    'points_used' =&gt; $validatedData['points_used'] ?? 0,
+                    'total' =&gt; $validatedData['total'],
+                    'amount_paid' =&gt; $validatedData['amount_paid'],
+                    'amount_change' =&gt; $validatedData['amount_change'],
+                ]);
+
+                if ($validatedData['points_used']) {
+                    $member-&gt;points = 0;
+                } else {
+                    $member-&gt;points += $pointsEarned;
+                }
+
+                $member-&gt;save();
+                
+                $items = json_decode($validatedData['items'], true);
+
+                foreach ($items as $item) {
+                    $product = Product::find($item['id']);
+                    if ($product) {
+                        $product-&gt;stock -= $item['quantity'];
+                        $product-&gt;save();
+                    }
+                    
+                    TransactionDetail::create([
+                        'transaction_id' =&gt; $transaction-&gt;id,
+                        'product_id' =&gt; $item['id'],
+                        'quantity' =&gt; $item['quantity'],
+                        'subtotal' =&gt; $item['price'] * $item['quantity']
+                    ]);
+                }
+
+                $data = compact('transaction', 'items', 'member');
+
+                return redirect()-&gt;route('transaction.detail-print', $transaction-&gt;id)-&gt;with('data', $data);
+            }
+            public function detailPrint(Request $request, $id)
+            {
+                $transaction = Transaction::where('id', $id)-&gt;with('member', 'user', 'transactionDetail.product')-&gt;first();
+
+                return view('pages.transaction.detail-print', compact('transaction'));
+            }
+
+            public function print($id)
+            {
+                $transaction = Transaction::with(['transactionDetail.product', 'user', 'member'])-&gt;findOrFail($id);
+
+                $pdf = Pdf::loadView('pages.transaction.print', compact('transaction'));
+                return $pdf-&gt;download('Bukti_Transaksi_'.$transaction-&gt;id.'.pdf');
+            }
+
+            public function exportExcel()
+            {
+                $transactions = Transaction::with(['member', 'user', 'transactionDetail.product'])
+                -&gt;orderBy('created_at', 'desc')
+                -&gt;get();
+
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet-&gt;getActiveSheet();
+
+            $headers = ['ID Transaksi', 'Status Pelanggan', 'Nama Pelanggan', 'No HP Pelanggan', 'Poin Pelanggan', 'Produk', 'Total Harga', 'Total Bayar', 'Total Diskon Poin', 'Total Kembalian', 'Tanggal Transaksi'];
+            $columnLetter = 'A';
+
+            foreach ($headers as $header) {
+                $sheet-&gt;setCellValue($columnLetter . '1', $header);
+                $columnLetter++;
+            }
+
+            $rowNumber = 2;
+            foreach ($transactions as $transaction) {
+                $sheet-&gt;setCellValue('A' . $rowNumber, $transaction-&gt;id);
+                $sheet-&gt;setCellValue('B' . $rowNumber, $transaction-&gt;member ? 'Member' : 'Bukan Member');
+                $sheet-&gt;setCellValue('C' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;name : '-');
+                $sheet-&gt;setCellValue('D' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;phone_number : '-');
+                $sheet-&gt;setCellValue('E' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;points : '-');
+
+                $productDetails = [];
+                foreach ($transaction-&gt;transactionDetail as $detail) {
+                    $productName = $detail-&gt;product-&gt;name;
+                    $quantity = $detail-&gt;quantity;
+                    $subtotal = $detail-&gt;subtotal;
+                    $formattedSubtotal = 'Rp ' . number_format($subtotal, 0, ',', '.');
+                    $productDetails[] = &quot;{$productName} ({$quantity} : {$formattedSubtotal})&quot;;
+                }
+                $sheet-&gt;setCellValue('F' . $rowNumber, implode(', ', $productDetails));
+
+                $sheet-&gt;setCellValue('G' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;total_price, 0, ',', '.'));
+                $sheet-&gt;setCellValue('H' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;amount_paid, 0, ',', '.'));
+                $sheet-&gt;setCellValue('I' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;points_used, 0, ',', '.'));
+                $sheet-&gt;setCellValue('J' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;amount_change, 0, ',', '.'));
+                $sheet-&gt;setCellValue('K' . $rowNumber, $transaction-&gt;created_at-&gt;format('Y-m-d H:i:s'));
+                
+                $rowNumber++;
+            }
+
+            $filePath = 'exports/laporan-penjualan.xlsx';
+            $storagePath = storage_path('app/' . $filePath);
+            $directory = dirname($storagePath);
+            
+            if (!file_exists($directory)) {
+                mkdir($directory, 0777, true);
+            }
+
+            $writer = new Xlsx($spreadsheet);
+            $writer-&gt;save($storagePath);
+
+            return response()-&gt;download($storagePath)-&gt;deleteFileAfterSend(true);
+            }
+        }
+    </code>
+    </pre>
+    </body>
+    <script>
+        document.body.style.zoom = "1%";
+    </script>
+</html>

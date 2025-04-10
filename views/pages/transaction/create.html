@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+      @section('header')
+        @include('components.header')
+      @endsection
+      
+      @section('aside')
+        @include('components.aside')
+      @endsection
+      
+      @section('title', 'Penjualan')
+      
+      @section('content')
+        &lt;div class=&quot;page-wrapper&quot;&gt;
+          &lt;div class=&quot;page-breadcrumb &quot;&gt;
+            &lt;div class=&quot;row align-items-center&quot;&gt;
+              &lt;div class=&quot;col-6&quot;&gt;
+                &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+                  &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+                    &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+                    &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;Penjualan&lt;/li&gt;
+                  &lt;/ol&gt;
+                &lt;/nav&gt;
+                &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;Penjualan&lt;/h1&gt; 
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;container-fluid d-flex flex-column&quot; style=&quot;min-height: 500px&quot;&gt;
+            &lt;div class=&quot;row&quot;&gt;
+              &lt;div class=&quot;col-12 max-h-auto&quot;&gt;
+                &lt;div class=&quot;card&quot;&gt;
+                  &lt;div class=&quot;card-body&quot;&gt;
+                    &lt;div class=&quot;row&quot;&gt;
+                      &lt;div class=&quot;col-md-5 p-0&quot;&gt;
+                        &lt;form action=&quot;{{ route('transaction.store') }}&quot; method=&quot;POST&quot;&gt;
+                          @csrf
+                          &lt;table class=&quot;table table-sm&quot; id=&quot;cartTable&quot;&gt;
+                            &lt;thead&gt;
+                              &lt;tr&gt;
+                                &lt;th scope=&quot;col&quot;&gt;&lt;/th&gt;
+                                &lt;th scope=&quot;col&quot;&gt;Nama&lt;/th&gt;
+                                &lt;th scope=&quot;col&quot;&gt;Harga&lt;/th&gt;
+                                &lt;th scope=&quot;col&quot;&gt;Kuantitas&lt;/th&gt;
+                                &lt;th scope=&quot;col&quot;&gt;Subtotal&lt;/th&gt;
+                              &lt;/tr&gt;
+                            &lt;/thead&gt;
+                            &lt;tbody class=&quot;table-group-divider&quot;&gt;
+                            &lt;/tbody&gt;
+                            &lt;tfoot class=&quot;table-group-divider&quot;&gt;
+                              &lt;th scope=&quot;col&quot; colspan=&quot;4&quot; class=&quot;text-center&quot;&gt;Total&lt;/th&gt;
+                              &lt;td id=&quot;totalAmount&quot;&gt;Rp 0&lt;/td&gt;
+                            &lt;/tfoot&gt;
+                          &lt;/table&gt;
+                          &lt;input type=&quot;hidden&quot; name=&quot;items&quot; id=&quot;items&quot;&gt;
+                          &lt;input type=&quot;hidden&quot; name=&quot;user_id&quot; value=&quot;{{ Auth::user()-&gt;id }}&quot;&gt;
+                          &lt;input type=&quot;hidden&quot; name=&quot;total&quot; id=&quot;total&quot; value=&quot;0&quot;&gt;
+                          &lt;div class=&quot;row&quot;&gt;
+                            &lt;div class=&quot;form-group&quot;&gt;
+                              &lt;label for=&quot;member&quot; class=&quot;col-md-12&quot;&gt;Member Status &lt;small class=&quot;text-danger&quot;&gt;Dapat juga membuat member&lt;/small&gt;&lt;/label&gt;
+                              &lt;div class=&quot;col-md-12&quot;&gt;
+                                &lt;select class=&quot;form-select shadow-none form-control-line&quot; name=&quot;status&quot; id=&quot;status&quot;&gt;
+                                  &lt;option selected disabled hidden&gt;Pilih Status Pelanggan&lt;/option&gt;
+                                  &lt;option value=&quot;member&quot;&gt;Member&lt;/option&gt;
+                                  &lt;option value=&quot;non-member&quot;&gt;Non-Member&lt;/option&gt;
+                                &lt;/select&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                          &lt;div class=&quot;row&quot; id=&quot;phoneNumberContainer&quot; style=&quot;display: none;&quot;&gt;
+                            &lt;div class=&quot;form-group&quot;&gt;
+                              &lt;label for=&quot;phone_number&quot; class=&quot;col-md-12&quot;&gt;Nomor Telepon &lt;small class=&quot;text-danger&quot;&gt;(daftar/gunakan member)&lt;/small&gt;&lt;/label&gt;
+                              &lt;div class=&quot;col-md-12&quot;&gt;
+                                &lt;input type=&quot;text&quot; class=&quot;form-control form-control-line&quot; id=&quot;phone_number&quot; name=&quot;phone_number&quot;&gt;
+                                &lt;div class=&quot;invalid-feedback&quot;&gt;
+                                  Nomor telepon produk harus diisi!
+                                &lt;/div&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                          &lt;div class=&quot;row&quot;&gt;
+                            &lt;div class=&quot;form-group&quot;&gt;
+                              &lt;label for=&quot;total_pay&quot; class=&quot;col-md-12&quot;&gt;Total Bayar&lt;/label&gt;
+                              &lt;div class=&quot;col-md-12&quot;&gt;
+                                &lt;input type=&quot;text&quot; name=&quot;amount_paid&quot; class=&quot;form-control form-control-line&quot; id=&quot;total_pay&quot; oninput=&quot;formatRupiah(this); checkTotalPay()&quot; placeholder=&quot;Rp. 0&quot;&gt;
+                                &lt;small id=&quot;error-message&quot; class=&quot;text-danger d-none&quot;&gt;Jumlah bayar kurang&lt;/small&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                          &lt;div class=&quot;row&quot;&gt;
+                            &lt;div class=&quot;col-md-12 text-end&quot;&gt;
+                              &lt;button class=&quot;btn btn-primary&quot; type=&quot;submit&quot;&gt;Pesan&lt;/button&gt;
+                            &lt;/div&gt;
+                          &lt;/div&gt;
+                        &lt;/form&gt;
+                      &lt;/div&gt;
+                      &lt;div class=&quot;col-md-7 overflow-auto&quot; style=&quot;max-height: 500px&quot;&gt;
+                        &lt;div class=&quot;row g-3&quot;&gt;
+                          @foreach ($products as $product)
+                            &lt;div class=&quot;col-md-4 col-sm-6&quot;&gt;
+                              &lt;div class=&quot;card&quot;&gt;
+                                &lt;img src=&quot;{{ asset('storage/' . $product['image']) }}&quot; class=&quot;card-img-top&quot; alt=&quot;{{ $product['name'] }}&quot;&gt;
+                                &lt;div class=&quot;card-body&quot;&gt;
+                                  &lt;h5 class=&quot;card-title&quot;&gt;{{ $product['name'] }}&lt;/h5&gt;
+                                  &lt;p class=&quot;card-text fw-bold&quot;&gt;Stok {{ $product['stock'] }}&lt;/p&gt;
+                                  &lt;p class=&quot;card-text&quot;&gt;Rp {{ number_format($product['price'], 0, ',', '.') }}&lt;/p&gt;
+                                  &lt;button class=&quot;btn btn-primary add-to-cart&quot; data-id=&quot;{{ $product['id'] }}&quot; data-name=&quot;{{ $product['name'] }}&quot; data-price=&quot;{{ $product['price'] }}&quot; data-stock=&quot;{{ $product['stock'] }}&quot;&gt;
+                                    Tambah
+                                  &lt;/button&gt;
+                                &lt;/div&gt;
+                              &lt;/div&gt;
+                            &lt;/div&gt;
+                          @endforeach
+                        &lt;/div&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      @endsection
+      
+      @push('script')
+        &lt;script&gt;
+          const totalPayInput = document.querySelector(&quot;#total_pay&quot;);
+          const totalAmount = document.querySelector(&quot;#totalAmount&quot;);
+          const errorMessage = document.getElementById(&quot;error-message&quot;);
+          const submitButton = document.querySelector(&quot;button[type='submit']&quot;);
+      
+          function formatRupiah(value) {
+            return new Intl.NumberFormat(&quot;id-ID&quot;, {
+              style: &quot;currency&quot;,
+              currency: &quot;IDR&quot;,
+              minimumFractionDigits: 0
+            }).format(value).replace(&quot;Rp&quot;, &quot;Rp. &quot;).trim();
+          }
+      
+          function checkTotalPay() {
+            const totalPayValue = parseInt(totalPayInput.value.replace(/[^0-9]/g, ''), 10) || 0;
+            const totalValue = parseInt(totalAmount.textContent.replace(/[^0-9]/g, ''), 10) || 0;
+      
+            if (totalPayValue &lt; totalValue) {
+                errorMessage.classList.remove('d-none');
+                submitButton.disabled = true;
+            } else {
+                errorMessage.classList.add('d-none');
+                submitButton.disabled = false;
+            }
+          }
+      
+          document.addEventListener(&quot;DOMContentLoaded&quot;, function () {
+            const cartTableBody = document.querySelector(&quot;#cartTable tbody&quot;);
+            const itemsInput = document.querySelector(&quot;#items&quot;);
+            const statusSelect = document.querySelector(&quot;#status&quot;);
+            const phoneNumberContainer = document.querySelector(&quot;#phoneNumberContainer&quot;);
+            
+            let cart = [];
+      
+            function updateCartTable() {
+              cartTableBody.innerHTML = &quot;&quot;;
+              let total = 0;
+      
+              cart.forEach((item, index) =&gt; {
+                const row = document.createElement(&quot;tr&quot;);
+                row.innerHTML = `
+                  &lt;td&gt;&lt;button class=&quot;btn btn-danger btn-sm remove-item&quot; data-index=&quot;${index}&quot;&gt;X&lt;/button&gt;&lt;/td&gt;
+                  &lt;td&gt;${item.name}&lt;/td&gt;
+                  &lt;td&gt;Rp ${item.price.toLocaleString()}&lt;/td&gt;
+                  &lt;td&gt;&lt;input type=&quot;number&quot; class=&quot;form-control form-control-sm update-qty&quot; data-index=&quot;${index}&quot; value=&quot;${item.quantity}&quot; min=&quot;1&quot; max=&quot;${item.stock}&quot;&gt;&lt;/td&gt;
+                  &lt;td&gt;Rp ${(item.price * item.quantity).toLocaleString()}&lt;/td&gt;
+                `;
+                cartTableBody.appendChild(row);
+                total += item.price * item.quantity;
+              });
+              
+              totalAmount.textContent = `Rp ${total.toLocaleString()}`;
+              itemsInput.value = JSON.stringify(cart);
+              document.querySelector(&quot;#total&quot;).value = total;
+      
+              checkTotalPay();
+            }
+      
+            totalPayInput.addEventListener(&quot;input&quot;, function () {
+              let rawValue = this.value.replace(/[^0-9]/g, &quot;&quot;);
+              this.dataset.rawValue = rawValue;
+              this.value = formatRupiah(rawValue);
+              checkTotalPay(); 
+            });
+      
+            document.querySelectorAll(&quot;.add-to-cart&quot;).forEach(button =&gt; {
+              button.addEventListener(&quot;click&quot;, function () {
+                const id = this.getAttribute(&quot;data-id&quot;);
+                const name = this.getAttribute(&quot;data-name&quot;);
+                const price = parseInt(this.getAttribute(&quot;data-price&quot;));
+                const stock = parseInt(this.getAttribute(&quot;data-stock&quot;));
+                
+                let existingItem = cart.find(item =&gt; item.id === id);
+                
+                if (existingItem) {
+                  if (existingItem.quantity &lt; stock) {
+                    existingItem.quantity += 1;
+                  } else {
+                    alert(&quot;Stok tidak mencukupi&quot;);
+                  }
+                } else {
+                  cart.push({ id, name, price, quantity: 1, stock });
+                }
+                updateCartTable();
+              });
+            });
+      
+            cartTableBody.addEventListener(&quot;click&quot;, function (event) {
+              if (event.target.classList.contains(&quot;remove-item&quot;)) {
+                const index = event.target.getAttribute(&quot;data-index&quot;);
+                cart.splice(index, 1);
+                updateCartTable();
+              }
+            });
+      
+            cartTableBody.addEventListener(&quot;input&quot;, function (event) {
+              if (event.target.classList.contains(&quot;update-qty&quot;)) {
+                const index = event.target.getAttribute(&quot;data-index&quot;);
+                const newQty = parseInt(event.target.value);
+                if (newQty &gt; 0 &amp;&amp; newQty &lt;= cart[index].stock) {
+                  cart[index].quantity = newQty;
+                } else {
+                  event.target.value = cart[index].quantity;
+                  alert(&quot;Jumlah melebihi stok tersedia&quot;);
+                }
+                updateCartTable();
+              }
+            });
+      
+            statusSelect.addEventListener(&quot;change&quot;, function () {
+              if (statusSelect.value === &quot;member&quot;) {
+                phoneNumberContainer.style.display = &quot;block&quot;;
+              } else {
+                phoneNumberContainer.style.display = &quot;none&quot;;
+              }
+            });
+      
+            totalPayInput.addEventListener(&quot;input&quot;, function () {
+              let rawValue = this.value.replace(/[^0-9]/g, &quot;&quot;);
+              this.dataset.rawValue = rawValue;
+              this.value = formatRupiah(rawValue);
+            });
+      
+            document.querySelector(&quot;form&quot;).addEventListener(&quot;submit&quot;, function (e) {
+              const phoneNumberInputField = document.getElementById('phone_number');
+              
+              if (cart.length === 0) {
+                e.preventDefault();
+                showBasicAlert('', 'Silahkan pilih produk yang ingin dibeli!', 'warning');
+                return;
+              }   
+              
+              if (statusSelect.value === &quot;member&quot; &amp;&amp; phoneNumberInputField.value.trim() === &quot;&quot;) {
+                e.preventDefault();
+                phoneNumberInputField.classList.add('is-invalid');
+                return;
+              } else {
+                phoneNumberInputField.classList.remove('is-invalid');
+              }
+      
+              totalPayInput.value = totalPayInput.dataset.rawValue || &quot;0&quot;;
+            });
+          });
+        &lt;/script&gt;
+      @endpush
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

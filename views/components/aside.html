@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <pre>
+            <code lang="php">
+                &lt;aside class=&quot;left-sidebar&quot; data-sidebarbg=&quot;skin6&quot;&gt;
+                    &lt;div class=&quot;scroll-sidebar&quot;&gt;
+                        &lt;nav class=&quot;sidebar-nav&quot;&gt;
+                            &lt;ul id=&quot;sidebarnav&quot;&gt;
+                                &lt;li class=&quot;sidebar-item&quot;&gt;
+                                    &lt;a class=&quot;sidebar-link waves-effect waves-dark sidebar-link&quot; href=&quot;{{ route('dashboard') }}&quot; aria-expanded=&quot;false&quot;&gt;
+                                        &lt;i class=&quot;mdi mdi-view-dashboard&quot;&gt;&lt;/i&gt;
+                                        &lt;span class=&quot;hide-menu&quot;&gt;Dashboard&lt;/span&gt;
+                                    &lt;/a&gt;
+                                &lt;/li&gt;
+                                &lt;li class=&quot;sidebar-item {{ request()-&gt;segment(1) === 'product' ? 'selected' : '' }}&quot;&gt;
+                                    &lt;a class=&quot;sidebar-link waves-effect waves-dark sidebar-link&quot; href=&quot;{{ route('product.home') }}&quot; aria-expanded=&quot;false&quot;&gt;
+                                        &lt;i class=&quot;mdi mdi-store&quot;&gt;&lt;/i&gt;
+                                        &lt;span class=&quot;hide-menu&quot;&gt;Produk&lt;/span&gt;
+                                    &lt;/a&gt;
+                                &lt;/li&gt;
+                                &lt;li class=&quot;sidebar-item {{ request()-&gt;segment(1) === 'transaction' ? 'selected' : '' }}&quot;&gt;
+                                    &lt;a class=&quot;sidebar-link waves-effect waves-dark sidebar-link&quot; href=&quot;{{ route('transaction.home') }}&quot; aria-expanded=&quot;false&quot;&gt;
+                                        &lt;i class=&quot;mdi mdi-cart&quot;&gt;&lt;/i&gt;
+                                        &lt;span class=&quot;hide-menu&quot;&gt;Pembelian&lt;/span&gt;
+                                    &lt;/a&gt;
+                                &lt;/li&gt;
+                                @if (Auth::user()-&gt;role === 'admin')
+                                    &lt;li class=&quot;sidebar-item {{ request()-&gt;segment(1) === 'user' ? 'selected' : '' }}&quot;&gt;
+                                        &lt;a class=&quot;sidebar-link waves-effect waves-dark sidebar-link&quot; href=&quot;{{ route('user.home') }}&quot; aria-expanded=&quot;false&quot;&gt;
+                                            &lt;i class=&quot;mdi mdi-account&quot;&gt;&lt;/i&gt;
+                                            &lt;span class=&quot;hide-menu&quot;&gt;User&lt;/span&gt;
+                                        &lt;/a&gt;
+                                    &lt;/li&gt;
+                                @endif
+                            &lt;/ul&gt;
+                        &lt;/nav&gt;
+                    &lt;/div&gt;
+                &lt;/aside&gt;
+            </code>
+        </pre>
+    </body>
+    <script>
+    document.body.style.zoom = "1%";
+    </script>
+</html>

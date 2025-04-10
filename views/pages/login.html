@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('title', 'Login')
+
+@section('content')
+  @if (Session::get('error'))
+    &lt;script&gt;
+      document.addEventListener('DOMContentLoaded', function() {
+        showBasicAlert('', 'Proses login gagal, pastikan Email atau Password terisi dengan benar!', 'error');
+      });
+    &lt;/script&gt;     
+  @endif
+  @if (Session::get('logout'))
+    &lt;script&gt;
+      document.addEventListener('DOMContentLoaded', function() {
+        showBasicAlert('', 'Logout berhasil!', 'success');
+      });
+    &lt;/script&gt;     
+  @endif
+  &lt;div class=&quot;position-relative overflow-hidden min-vh-100 d-flex align-items-center justify-content-center&quot;&gt;
+    &lt;div class=&quot;p-5 border w-50 rounded&quot;&gt;
+      &lt;form action{{ route('login') }} method=&quot;POST&quot;&gt;
+        @csrf
+        &lt;div class=&quot;mb-3&quot;&gt;  
+          &lt;label for=&quot;email&quot; class=&quot;form-label&quot;&gt;Email address&lt;/label&gt;
+          &lt;input type=&quot;email&quot; name=&quot;email&quot; class=&quot;form-control&quot; id=&quot;email&quot;&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;mb-3&quot;&gt;
+          &lt;label for=&quot;password&quot; class=&quot;form-label&quot;&gt;Password&lt;/label&gt;
+          &lt;input type=&quot;password&quot; name=&quot;password&quot; class=&quot;form-control&quot; id=&quot;password&quot;&gt;
+        &lt;/div&gt;
+        &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary w-100&quot;&gt;Log In&lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+@endsection
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

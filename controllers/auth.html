@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+  <pre>
+    <code lang="php">
+      &lt;?php
+
+      namespace App\Http\Controllers;
+
+      use Auth;
+      use Illuminate\Http\Request;
+
+      class AuthController extends Controller
+      {
+        public function login(Request $request)
+        {
+          $request-&gt;validate([
+            'email' =&gt; 'required|email:dns',
+            'password' =&gt; 'required'
+          ]);
+
+          if (Auth::attempt($request-&gt;only('email', 'password'))) {
+            $user = Auth::user();
+            
+            if ($user) {
+              return redirect()-&gt;route('dashboard')-&gt;with('loginSuccess', 'Login Successfully');
+            }
+          }
+
+          return back()-&gt;with('error', 'Email atau password salah!');
+        }
+
+        public function logout()
+        {
+          Auth::logout();
+
+          return redirect()-&gt;route('login')-&gt;with('logout', 'Logout Success');
+        }
+      }
+    </code>
+  </pre>
+  </body>
+  <script>
+    document.body.style.zoom = "1%";
+  </script>
+</html>

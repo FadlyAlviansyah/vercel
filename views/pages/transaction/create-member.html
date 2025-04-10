@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'Penjualan')
+
+@section('content')
+&lt;div class=&quot;page-wrapper&quot;&gt;
+  &lt;div class=&quot;page-breadcrumb &quot;&gt;
+    &lt;div class=&quot;row align-items-center&quot;&gt;
+      &lt;div class=&quot;col-6&quot;&gt;
+        &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+          &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+            &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;Penjualan&lt;/li&gt;
+          &lt;/ol&gt;
+        &lt;/nav&gt;
+        &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;Penjualan&lt;/h1&gt; 
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;container-fluid d-flex flex-column&quot; style=&quot;min-height: 500px&quot;&gt;
+    &lt;div class=&quot;row&quot;&gt;
+      &lt;div class=&quot;col-12 max-h-auto&quot;&gt;
+        &lt;div class=&quot;card&quot;&gt;
+          &lt;div class=&quot;card-body&quot;&gt;
+            &lt;div class=&quot;row&quot;&gt;
+              &lt;div class=&quot;col-lg-6 col-md-12 pe-5&quot;&gt;
+                &lt;table class=&quot;table&quot;&gt;
+                  &lt;thead&gt;
+                    &lt;tr&gt;
+                      &lt;th scope=&quot;col&quot; class=&quot;pt-0&quot;&gt;Nama Produk&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot; class=&quot;pt-0&quot;&gt;Harga&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot; class=&quot;pt-0&quot;&gt;Kuantitas&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot; class=&quot;pt-0&quot;&gt;Subtotal&lt;/th&gt;
+                    &lt;/tr&gt;
+                  &lt;/thead&gt;
+                  &lt;tbody class=&quot;table-group-divider&quot;&gt;
+                    @foreach ($items as $item)
+                      &lt;tr&gt;
+                        &lt;td&gt;{{ $item['name'] }}&lt;/td&gt;
+                        &lt;td&gt;Rp {{ number_format($item['price'], 0, ',', '.') }}&lt;/td&gt;
+                        &lt;td&gt;{{ $item['quantity'] }}&lt;/td&gt;
+                        &lt;td&gt;Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}&lt;/td&gt;
+                      &lt;/tr&gt;
+                    @endforeach
+                  &lt;/tbody&gt;
+                  &lt;tfoot class=&quot;table-group-divider&quot;&gt;
+                    &lt;td colspan=&quot;3&quot; class=&quot;text-end&quot;&gt;&lt;strong&gt;Kembalian:&lt;/strong&gt;&lt;/td&gt;
+                    &lt;td id=&quot;totalChange&quot;&gt;Rp {{ number_format($amountChange, 0, ',', '.') }}&lt;/td&gt;
+                  &lt;/tfoot&gt;
+                  &lt;tfoot class=&quot;table-group-divider&quot;&gt;
+                    &lt;td colspan=&quot;3&quot; class=&quot;text-end&quot;&gt;&lt;strong&gt;Total Harga:&lt;/strong&gt;&lt;/td&gt;
+                    &lt;td&gt;
+                      &lt;div id=&quot;totalPriceBeforeDiscount&quot;&gt;Rp {{ number_format($total, 0, ',', '.') }}&lt;/div&gt;
+                      &lt;div class=&quot;d-none&quot; id=&quot;totalPriceAfterDiscount&quot;&gt;Rp {{ number_format($total, 0, ',', '.') }}&lt;/div&gt;
+                    &lt;/td&gt;
+                  &lt;/tfoot&gt;
+                  &lt;tfoot class=&quot;table-group-divider&quot;&gt;
+                    &lt;td colspan=&quot;3&quot; class=&quot;text-end&quot;&gt;&lt;strong&gt;Total Bayar:&lt;/strong&gt;&lt;/td&gt;
+                    &lt;td id=&quot;totalPaid&quot;&gt;Rp {{ number_format($amountPaid, 0, ',', '.') }}&lt;/td&gt;
+                  &lt;/tfoot&gt;
+                &lt;/table&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;col-lg-6 col-md-12 ps-5&quot;&gt;
+                &lt;form action=&quot;{{ route('transaction.store-member') }}&quot; method=&quot;POST&quot;&gt;
+                  @csrf
+                  &lt;div class=&quot;row&quot;&gt;
+                    &lt;div class=&quot;form-group&quot;&gt;
+                      &lt;label for=&quot;name&quot; class=&quot;col-md-12&quot;&gt;Nama Member (identitas)&lt;/label&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;text&quot; class=&quot;form-control form-control-line @error('name') is-invalid @enderror&quot; id=&quot;name&quot; name=&quot;name&quot; value=&quot;{{ old('name', $memberName) }}&quot;&gt;
+                        @error('name')
+                          &lt;div class=&quot;invalid-feedback&quot;&gt;
+                            Nama member harus diisi!
+                          &lt;/div&gt;
+                        @enderror
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;row&quot;&gt;
+                    &lt;div class=&quot;form-group&quot;&gt;
+                      &lt;label for=&quot;points&quot; class=&quot;col-md-12&quot;&gt;Poin&lt;/label&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;number&quot; class=&quot;form-control form-control-line&quot; id=&quot;points&quot; name=&quot;points&quot; value=&quot;{{ $points }}&quot; readonly&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;row&quot;&gt;
+                    &lt;div class=&quot;form-check ms-4&quot;&gt;
+                      &lt;div class=&quot;col-md-12&quot;&gt;
+                        &lt;input type=&quot;checkbox&quot; class=&quot;form-check-input&quot; id=&quot;check&quot; name=&quot;check_poin&quot; onchange=&quot;updateTotal()&quot; {{ $isNewMember ? 'disabled' : '' }}&gt;
+                        &lt;label for=&quot;check&quot; class=&quot;form-check-label&quot;&gt;Gunakan poin&lt;/label&gt;
+                        @if ($isNewMember)
+                          &lt;small class=&quot;text-danger&quot;&gt;Poin tidak dapat digunakan pada pembelanjaan pertama&lt;/small&gt;
+                        @endif
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                  &lt;input type=&quot;hidden&quot; name=&quot;items&quot; value=&quot;{{ old('items', json_encode($items)) }}&quot;&gt;
+                  {{-- &lt;input type=&quot;hidden&quot; name=&quot;items&quot; value=&quot;{{ json_encode($items) }}&quot;&gt; --}}
+                  &lt;input type=&quot;hidden&quot; name=&quot;total&quot; value=&quot;{{ $total }}&quot; id=&quot;total&quot;&gt;
+                  &lt;input type=&quot;hidden&quot; name=&quot;points_used&quot; id=&quot;points_used&quot;&gt;
+                  &lt;input type=&quot;hidden&quot; name=&quot;amount_paid&quot; value=&quot;{{ $amountPaid }}&quot;&gt;
+                  &lt;input type=&quot;hidden&quot; name=&quot;amount_change&quot; value=&quot;{{ $amountChange }}&quot;&gt;
+                  &lt;input type=&quot;hidden&quot; name=&quot;phone_number&quot; value=&quot;{{ $phoneNumber }}&quot;&gt;
+                  &lt;input type=&quot;hidden&quot; name=&quot;user_id&quot; value=&quot;{{ Auth::user()-&gt;id }}&quot;&gt;
+                  &lt;div class=&quot;row&quot;&gt;
+                    &lt;div class=&quot;col-md-12 text-end&quot;&gt;
+                      &lt;button class=&quot;btn btn-primary&quot; type=&quot;submit&quot;&gt;Pesan&lt;/button&gt;
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/form&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+
+@push('script')
+&lt;script&gt;
+  function updateTotal() {
+    const points = parseInt(document.getElementById('points').value);
+    const totalInput = document.querySelector('input[name=&quot;total&quot;]');
+    const amountPaid = parseInt(document.querySelector('input[name=&quot;amount_paid&quot;]').value);
+    const amountChangeInput = document.querySelector('input[name=&quot;amount_change&quot;]');
+    const amountChangeElement = document.getElementById('totalChange');
+    const checkbox = document.getElementById('check');
+    const pointsUsedInput = document.getElementById('points_used')
+    
+    const totalPricBeforeDiscounteElement = document.getElementById('totalPriceBeforeDiscount');
+    const totalPriceAfterDiscountElement = document.getElementById('totalPriceAfterDiscount');
+
+    let originalTotal = totalInput.dataset.originalTotal || (totalInput.dataset.originalTotal = totalInput.value);
+    originalTotal = parseInt(originalTotal);
+
+    let newTotal = checkbox.checked ? Math.max(originalTotal - points, 0) : originalTotal;
+    let newAmountChange = Math.max(amountPaid - newTotal, 0);
+
+    pointsUsedInput.value = checkbox.checked ? points : 0;
+
+    totalInput.value = newTotal;
+    amountChangeInput.value = newAmountChange;
+    amountChangeElement.innerText = `Rp ${newAmountChange.toLocaleString('id-ID')}`;
+
+    totalPricBeforeDiscounteElement.classList.toggle('text-decoration-line-through', checkbox.checked);
+    totalPriceAfterDiscountElement.classList.toggle('d-none', !checkbox.checked);
+    totalPriceAfterDiscountElement.innerText = `Rp ${newTotal.toLocaleString('id-ID')}`;
+  }
+&lt;/script&gt;
+@endpush
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      &lt;?php
+
+      use App\Http\Controllers\AuthController;
+      use App\Http\Controllers\DashboardController;
+      use App\Http\Controllers\MemberController;
+      use App\Http\Controllers\ProductController;
+      use App\Http\Controllers\TransactionController;
+      use App\Http\Controllers\UserController;
+      use Illuminate\Support\Facades\Route;
+
+      Route::middleware(['guest'])-&gt;group(function() {
+        Route::get('/login', function() {
+          return view('pages.login');
+        })-&gt;name('login');
+
+        Route::post('/login', [AuthController::class, 'login']);
+      });
+
+      Route::middleware(['auth'])-&gt;group(function() {
+        Route::get('/logout', [AuthController::class, 'logout'])-&gt;name('logout');
+        Route::get('/', [DashboardController::class, 'index'])-&gt;name('dashboard');
+
+        Route::middleware(['role:admin'])-&gt;group(function() {
+          Route::prefix('/user')-&gt;name('user.')-&gt;group(function() {
+            Route::get('/', [UserController::class, 'index'])-&gt;name('home');
+            Route::get('/create', [UserController::class, 'create'])-&gt;name('create');
+            Route::post('/create', [UserController::class, 'store'])-&gt;name('store');
+            Route::get('/edit/{id}', [UserController::class, 'edit'])-&gt;name('edit');
+            Route::patch('/{id}', [UserController::class, 'update'])-&gt;name('update');
+            Route::delete('/{id}', [UserController::class, 'destroy'])-&gt;name('delete');
+          });
+        });
+
+        Route::prefix('/product')-&gt;name('product.')-&gt;group(function() {
+          Route::middleware(['role:admin'])-&gt;group(function() {
+            Route::get('/create', [ProductController::class, 'create'])-&gt;name('create');
+            Route::post('/create', [ProductController::class, 'store'])-&gt;name('store');
+            Route::get('/edit/{id}', [ProductController::class, 'edit'])-&gt;name('edit');
+            Route::patch('/{id}', [ProductController::class, 'update'])-&gt;name('update');
+            Route::patch('/update-stock/{id}', [ProductController::class, 'updateStock'])-&gt;name('updateStock');
+            Route::delete('/{id}', [ProductController::class, 'destroy'])-&gt;name('delete');
+          });
+
+          Route::get('/', [ProductController::class, 'index'])-&gt;name('home');
+        });
+        
+        Route::prefix('/transaction')-&gt;name('transaction.')-&gt;group(function() {
+          Route::middleware(['role:cashier'])-&gt;group(function() {
+            Route::get('/create', [TransactionController::class, 'create'])-&gt;name('create');
+            Route::post('/create', [TransactionController::class, 'store'])-&gt;name('store');
+            Route::get('/edit/{id}', [TransactionController::class, 'edit'])-&gt;name('edit');
+            Route::patch('/{id}', [TransactionController::class, 'update'])-&gt;name('update');
+            Route::delete('/{id}', [TransactionController::class, 'destroy'])-&gt;name('delete');
+            Route::get('/create/member', [TransactionController::class, 'createMember'])-&gt;name('create-member');
+            Route::post('/create/member', [TransactionController::class, 'storeMember'])-&gt;name('store-member');
+          });
+
+          Route::get('/', [TransactionController::class, 'index'])-&gt;name('home');
+          Route::get('/detail-print/{id}', [TransactionController::class, 'detailPrint'])-&gt;name('detail-print');
+          Route::get('/detail-print/print/{id}', [TransactionController::class, 'print'])-&gt;name('print');
+          Route::get('/export-excel', [TransactionController::class, 'exportExcel'])-&gt;name('export-excel');
+        });
+      });
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      Schema::create('transaction_details', function (Blueprint $table) {
+        $table-&gt;id();
+        $table-&gt;foreignId('transaction_id')-&gt;constrained('transactions');
+        $table-&gt;foreignId('product_id')-&gt;constrained('products');
+        $table-&gt;integer('quantity');
+        $table-&gt;integer('subtotal');
+        $table-&gt;timestamps();
+        $table-&gt;softDeletes();
+      });
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

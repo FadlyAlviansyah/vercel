@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <pre>
+            <code lang="php">
+                &lt;?php
+
+                namespace App\Http\Controllers;
+
+                use Illuminate\Http\Request;
+                use App\Models\Transaction;
+                use Carbon\Carbon;
+
+                class DashboardController extends Controller
+                {
+                    public function index()
+                    {
+                        $month = Carbon::now()-&gt;format('Y-m');
+
+                        $transactions = Transaction::where('created_at', 'like', &quot;$month%&quot;)
+                            -&gt;with(['transactionDetail.product'])
+                            -&gt;get();
+
+                        $transactionData = $transactions-&gt;groupBy(function ($transaction) {
+                            return Carbon::parse($transaction-&gt;created_at)-&gt;format('Y-m-d');
+                        })-&gt;map(function ($transactions, $date) {
+                            return [
+                                'date' =&gt; Carbon::parse($date)-&gt;translatedFormat('d F Y'), 
+                                'total_transactions' =&gt; $transactions-&gt;count()
+                            ];
+                        })-&gt;values();
+
+                        $productSales = $transactions-&gt;flatMap-&gt;transactionDetail
+                            -&gt;groupBy('product_id')
+                            -&gt;map(function ($details, $productId) {
+                                return [
+                                    'product_name' =&gt; $details-&gt;first()-&gt;product-&gt;name,
+                                    'total_sold' =&gt; $details-&gt;sum('quantity')
+                                ];
+                            })-&gt;values();
+
+                        $today = Carbon::today();
+
+                        $totalTransactions = Transaction::where('created_at', $today)-&gt;count();
+
+                        $lastUpdated = Carbon::now()-&gt;translatedFormat('d M Y H:i');
+
+                        return view('pages.dashboard', compact('transactionData', 'productSales', 'totalTransactions', 'lastUpdated'));
+                    }
+                }
+            </code>
+        </pre>
+    </body>
+    <script>
+        document.body.style.zoom = "1%";
+    </script>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'User')
+
+@section('content')
+  @if (Session::get('deleted'))
+    &lt;script&gt;
+      document.addEventListener('DOMContentLoaded', function() {
+        showBasicAlert('', 'Berhasil Menghapus Data User!', 'success');
+      });
+    &lt;/script&gt;     
+  @endif
+  @if (Session::get('added'))
+    &lt;script&gt;
+      document.addEventListener('DOMContentLoaded', function() {
+        showBasicAlert('', 'Berhasil Menambah Data User!', 'success');
+      });
+    &lt;/script&gt;     
+  @endif
+  @if (Session::get('updated'))
+    &lt;script&gt;
+      document.addEventListener('DOMContentLoaded', function() {
+        showBasicAlert('', 'Berhasil Mengubah Data User!', 'success');
+      });
+    &lt;/script&gt;     
+  @endif
+  &lt;div class=&quot;page-wrapper&quot;&gt;
+    &lt;div class=&quot;page-breadcrumb&quot;&gt;
+      &lt;div class=&quot;row align-items-center&quot;&gt;
+        &lt;div class=&quot;col-6&quot;&gt;
+          &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+            &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+              &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+              &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;User&lt;/li&gt;
+            &lt;/ol&gt;
+          &lt;/nav&gt;
+          &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;User&lt;/h1&gt; 
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;container-fluid&quot;&gt;
+      &lt;div class=&quot;row&quot;&gt;
+        &lt;div class=&quot;col-12&quot;&gt;
+          &lt;div class=&quot;card&quot;&gt;
+            &lt;div class=&quot;card-body&quot;&gt;
+              &lt;div class=&quot;row justify-content-end&quot;&gt;
+                &lt;div class=&quot;col text-end&quot;&gt;
+                  &lt;a href=&quot;{{ route('user.create') }}&quot; class=&quot;btn btn-primary&quot;&gt;Tambah User&lt;/a&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;table-responsive&quot;&gt;
+                &lt;table class=&quot;table table-hover&quot;&gt;
+                  &lt;thead&gt;
+                    &lt;tr&gt;
+                      &lt;th scope=&quot;col&quot;&gt;#&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot;&gt;Email&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot;&gt;Nama&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot;&gt;Role&lt;/th&gt;
+                      &lt;th scope=&quot;col&quot;&gt;&lt;/th&gt;
+                    &lt;/tr&gt;
+                  &lt;/thead&gt;
+                  &lt;tbody&gt;
+                    @php
+                        $i = 1;
+                  @endphp
+                    @foreach ($users as $user)
+                      &lt;tr&gt;
+                        &lt;th&gt;{{ $i++ }}&lt;/th&gt;
+                        &lt;td&gt;{{ $user['email'] }}&lt;/td&gt;
+                        &lt;td&gt;{{ $user['name'] }}&lt;/td&gt;
+                        &lt;td class=&quot;text-capitalize&quot;&gt;{{ $user['role'] }}&lt;/td&gt;
+                        &lt;td&gt;
+                          &lt;div class=&quot;d-flex justify-content-around&quot;&gt;
+                            &lt;a href=&quot;{{ route('user.edit', $user['id']) }}&quot; class=&quot;btn btn-warning&quot;&gt;Edit&lt;/a&gt;
+                            &lt;form action=&quot;{{ route('user.delete', $user['id']) }}&quot; method=&quot;post&quot;&gt;
+                              @csrf
+                              @method('DELETE')
+                              &lt;button class=&quot;btn btn-danger&quot; onclick=&quot;showDeleteConfirmationAlert(event, this.form)&quot;&gt;Hapus&lt;/button&gt;
+                            &lt;/form&gt;
+                          &lt;/div&gt;
+                        &lt;/td&gt;
+                      &lt;/tr&gt;
+                    @endforeach
+                  &lt;/tbody&gt;
+                &lt;/table&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+@endsection
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

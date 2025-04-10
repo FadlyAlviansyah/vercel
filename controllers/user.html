@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+    <pre>
+    <code lang="php">
+        &lt;?php
+
+        namespace App\Http\Controllers;
+        
+        use App\Models\User;
+        use Hash;
+        use Illuminate\Http\Request;
+        
+        class UserController extends Controller
+        {
+            public function index()
+            {
+                $users = User::get();
+                return view('pages.user.index', compact('users'));
+            }
+        
+            public function create()
+            {
+                return view('pages.user.create');
+            }
+        
+            public function store(Request $request)
+            {
+                $validatedData = $request-&gt;validate([
+                    'email' =&gt; 'required|email:dns',
+                    'name' =&gt; 'required',
+                    'role' =&gt; 'required|in:admin,cashier',
+                    'password' =&gt; 'required'
+                ]);
+        
+                User::create([
+                    'email' =&gt; $validatedData['email'],
+                    'name' =&gt; $validatedData['name'],
+                    'role' =&gt; $validatedData['role'],
+                    'password' =&gt; Hash::make($validatedData['password']),
+                ]);
+        
+                return redirect()-&gt;route('user.home')-&gt;with('added', 'Employee added successfully!');
+            }
+        
+            public function edit(User $user, $id)
+            {
+                $user = User::find($id);
+                return view('pages.user.edit', compact('user'));
+            }
+            public function update(Request $request, User $user, $id)
+            {
+                $validation = [
+                    'email' =&gt; 'required|email:dns',
+                    'name' =&gt; 'required',
+                    'role' =&gt; 'required|in:admin,cashier',
+                ];
+        
+                $validatedData = $request-&gt;validate($validation);
+        
+                if ($request-&gt;password) {
+                    $validatedData['password'] = Hash::make($request-&gt;password);
+                }
+        
+                User::where('id', $id)-&gt;update($validatedData);
+        
+                return redirect()-&gt;route('user.home')-&gt;with('updated', 'User updated successfully!');
+            }
+        
+            public function destroy($id)
+            {
+                User::where('id', $id)-&gt;delete();
+        
+                return redirect()-&gt;back()-&gt;with('deleted', 'User deleted successfully!');
+            }
+        }
+    </code>
+    </pre>
+    </body>
+    <script>
+        document.body.style.zoom = "1%";
+    </script>
+</html>

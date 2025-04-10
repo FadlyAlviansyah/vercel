@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'User')
+
+@section('content')
+&lt;div class=&quot;page-wrapper&quot;&gt;
+  &lt;div class=&quot;page-breadcrumb&quot;&gt;
+    &lt;div class=&quot;row align-items-center&quot;&gt;
+      &lt;div class=&quot;col-6&quot;&gt;
+        &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+          &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+            &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;{{ route('dashboard') }}&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;User&lt;/li&gt;
+          &lt;/ol&gt;
+        &lt;/nav&gt;
+        &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;User&lt;/h1&gt; 
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;container-fluid&quot;&gt;
+    &lt;div class=&quot;row&quot;&gt;
+      &lt;div class=&quot;col-12&quot;&gt;
+        &lt;div class=&quot;card&quot;&gt;
+          &lt;div class=&quot;card-body&quot;&gt;
+            &lt;form class=&quot;form-horizontal form-material mx-2&quot; method=&quot;POST&quot; action=&quot;{{ route('user.update', $user['id']) }}&quot;&gt;
+              @csrf
+              @method('PATCH')
+              &lt;div class=&quot;row&quot;&gt;
+                &lt;div class=&quot;col-md-6&quot;&gt;
+                  &lt;div class=&quot;form-group&quot;&gt;
+                    &lt;label for=&quot;email&quot; class=&quot;col-md-12&quot;&gt;Email &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                    &lt;div class=&quot;col-md-12&quot;&gt;
+                      &lt;input type=&quot;email&quot; name=&quot;email&quot; id=&quot;email&quot; value=&quot;{{ $user['email'] }}&quot; class=&quot;form-control form-control-line @error('email') is-invalid @enderror&quot;&gt;
+                      @error('email')
+                        &lt;div class=&quot;invalid-feedback&quot;&gt;
+                          Email harus diisi!
+                        &lt;/div&gt;
+                      @enderror
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=&quot;col-md-6&quot;&gt;
+                  &lt;div class=&quot;form-group&quot;&gt;
+                    &lt;label for=&quot;name&quot; class=&quot;col-md-12&quot;&gt;Nama &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                    &lt;div class=&quot;col-md-12&quot;&gt;
+                      &lt;input type=&quot;text&quot; name=&quot;name&quot; id=&quot;name&quot; value=&quot;{{ $user['name'] }}&quot; class=&quot;form-control form-control-line @error('name') is-invalid @enderror&quot;&gt;
+                      @error('name')
+                        &lt;div class=&quot;invalid-feedback&quot;&gt;
+                          Nama harus diisi!
+                        &lt;/div&gt;
+                      @enderror
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;row&quot;&gt;
+                &lt;div class=&quot;col-md-6&quot;&gt;
+                  &lt;div class=&quot;form-group&quot;&gt;
+                    &lt;label for=&quot;role&quot; class=&quot;col-md-12&quot;&gt;Role &lt;span class=&quot;text-danger&quot;&gt;*&lt;/span&gt;&lt;/label&gt;
+                    &lt;div class=&quot;col-md-12&quot;&gt;
+                      &lt;select class=&quot;form-select shadow-none form-control-line @error('role') is-invalid @enderror&quot; name=&quot;role&quot; id=&quot;role&quot;&gt;
+                        &lt;option selected disabled hidden&gt;Pilih role&lt;/option&gt;
+                        &lt;option value=&quot;admin&quot; {{ $user['role'] == 'admin' ? 'selected' : '' }}&gt;Admin&lt;/option&gt;
+                        &lt;option value=&quot;cashier&quot; {{ $user['role'] == 'cashier' ? 'selected' : '' }}&gt;Cashier&lt;/option&gt;
+                      &lt;/select&gt;
+                      @error('role')
+                        &lt;div class=&quot;invalid-feedback&quot;&gt;
+                          Role harus dipilih!
+                        &lt;/div&gt;
+                      @enderror
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=&quot;col-md-6&quot;&gt;
+                  &lt;div class=&quot;form-group&quot;&gt;
+                    &lt;label for=&quot;password&quot; class=&quot;col-md-12&quot;&gt;Password&lt;/label&gt;
+                    &lt;div class=&quot;col-md-12&quot;&gt;
+                      &lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;password&quot; class=&quot;form-control form-control-line @error('password') is-invalid @enderror&quot;&gt;
+                      @error('password')
+                        &lt;div class=&quot;invalid-feedback&quot;&gt;
+                          Password harus diisi!
+                        &lt;/div&gt;
+                      @enderror
+                    &lt;/div&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;div class=&quot;row justify-content-end&quot;&gt;
+                &lt;div class=&quot;col text-end&quot;&gt;
+                  &lt;button type=&quot;submit&quot; class=&quot;btn btn-primary w-25&quot;&gt;Simpan&lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/form&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+@endsection
+    </code>
+  </pre>
+  </body>
+  <script>
+    document.body.style.zoom = "1%";
+  </script>
+</html>

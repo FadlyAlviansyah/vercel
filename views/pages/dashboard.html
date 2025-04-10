@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      @extends('layouts.main')
+
+@section('header')
+  @include('components.header')
+@endsection
+
+@section('aside')
+  @include('components.aside')
+@endsection
+
+@section('title', 'Dashboard')
+
+@section('content')
+    @if (Session::get('loginSuccess'))
+        &lt;script&gt;
+            document.addEventListener('DOMContentLoaded', function() {
+                showBasicAlert('', 'Login berhasil!', 'success');
+            });
+        &lt;/script&gt;     
+    @endif
+    &lt;div class=&quot;page-wrapper&quot;&gt;
+        &lt;div class=&quot;page-breadcrumb&quot;&gt;
+            &lt;div class=&quot;row align-items-center&quot;&gt;
+                &lt;div class=&quot;col-6&quot;&gt;
+                    &lt;nav aria-label=&quot;breadcrumb&quot;&gt;
+                        &lt;ol class=&quot;breadcrumb mb-0 d-flex align-items-center&quot;&gt;
+                            &lt;li class=&quot;breadcrumb-item&quot;&gt;&lt;a href=&quot;index.html&quot; class=&quot;link&quot;&gt;&lt;i class=&quot;mdi mdi-home-outline fs-4&quot;&gt;&lt;/i&gt;&lt;/a&gt;&lt;/li&gt;
+                            &lt;li class=&quot;breadcrumb-item active&quot; aria-current=&quot;page&quot;&gt;Dashboard&lt;/li&gt;
+                        &lt;/ol&gt;
+                    &lt;/nav&gt;
+                    &lt;h1 class=&quot;mb-0 fw-bold&quot;&gt;Dashboard&lt;/h1&gt; 
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;container-fluid&quot;&gt;
+            &lt;div class=&quot;row&quot;&gt;
+                &lt;div class=&quot;card&quot;&gt;
+                    &lt;div class=&quot;card-body&quot;&gt;
+                        &lt;div class=&quot;d-md-flex align-items-center&quot;&gt;
+                            &lt;div&gt;
+                                &lt;h4 class=&quot;card-title&quot;&gt;Selamat Datang, {{ Auth::user()-&gt;name }}!&lt;/h4&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class=&quot;row&quot;&gt;
+                            @if (Auth::user()-&gt;role === 'admin')
+                                &lt;div class=&quot;col-lg-8&quot;&gt;
+                                    &lt;canvas id=&quot;barChart&quot;&gt;&lt;/canvas&gt;
+                                &lt;/div&gt;
+                                &lt;div class=&quot;col-lg-4&quot;&gt;
+                                    &lt;canvas id=&quot;pieChart&quot;&gt;&lt;/canvas&gt;
+                                &lt;/div&gt;
+                            @else
+                                &lt;div class=&quot;card text-center p-0&quot;&gt;
+                                    &lt;div class=&quot;card-header&quot;&gt;
+                                        Total Penjualan Hari Ini
+                                    &lt;/div&gt;
+                                    &lt;div class=&quot;card-body&quot;&gt;
+                                        &lt;h5 class=&quot;card-title&quot;&gt;{{ $totalTransactions }}&lt;/h5&gt;
+                                        &lt;p class=&quot;card-text&quot;&gt;Jumlah total penjualan yang terjadi hari ini.&lt;/p&gt;
+                                    &lt;/div&gt;
+                                    &lt;div class=&quot;card-footer text-body-secondary&quot;&gt;
+                                        Terakhir diperbarui: {{ $lastUpdated }}
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            @endif
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+@endsection
+
+@if (Auth::user()-&gt;role === 'admin') 
+    @push('script')
+    &lt;script&gt;
+        const transactionData = @json($transactionData);
+        const productSales = @json($productSales);
+        
+        const barLabels = transactionData.map(item =&gt; item.date);
+        const pieLabels = productSales.map(item =&gt; item.product_name);
+        const barData = transactionData.map(item =&gt; item.total_transactions);
+        const pieData = productSales.map(item =&gt; item.total_sold);
+        
+        const ctx = document.getElementById('barChart');
+        const barChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{
+                    label: 'Jumlah Penjualan',
+                    data: barData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                y: {
+                    beginAtZero: true
+                }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('pieChart')
+        const pieChart = new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    label: 'Persentase Penjualan Produk',
+                    data: pieData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                    ],
+                    borderWidth: 1,
+                }],
+            },
+            options: {
+                resposnive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Persentase Penjualan Produk',
+                    }
+                }
+            }
+        })
+    &lt;/script&gt;
+    @endpush
+@endif
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <pre>
+    <code lang="php">
+      Schema::create('users', function (Blueprint $table) {
+        $table-&gt;id();
+        $table-&gt;string('email');
+        $table-&gt;string('name');
+        $table-&gt;enum('role', ['admin', 'cashier']);
+        $table-&gt;string('password');
+        $table-&gt;timestamps();
+        $table-&gt;softDeletes();
+      });
+    </code>
+  </pre>
+</body>
+<script>
+  document.body.style.zoom = '1%'
+  </script>
+</html>

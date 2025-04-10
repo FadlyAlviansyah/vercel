@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <pre>
+            <code lang="php">
+                &lt;header class=&quot;topbar&quot; data-navbarbg=&quot;skin6&quot;&gt;
+                    &lt;nav class=&quot;navbar top-navbar navbar-expand-md navbar-light&quot;&gt;
+                        &lt;div class=&quot;navbar-header&quot; data-logobg=&quot;skin6&quot;&gt;
+                            &lt;a class=&quot;navbar-brand&quot; href=&quot;index.html&quot;&gt;
+                                &lt;b class=&quot;logo-icon&quot;&gt;
+                                    &lt;img src=&quot;{{ asset('assets/images/logo-icon.png') }}&quot; alt=&quot;homepage&quot; class=&quot;dark-logo&quot; /&gt;
+                                    &lt;img src=&quot;{{ asset('assets/images/logo-light-icon.png') }}&quot; alt=&quot;homepage&quot; class=&quot;light-logo&quot; /&gt;
+                                &lt;/b&gt;
+                                &lt;span class=&quot;logo-text&quot;&gt;
+                                    &lt;img src=&quot;{{ asset('assets/images/logo-text.png') }}&quot; alt=&quot;homepage&quot; class=&quot;dark-logo&quot; /&gt;
+                                    &lt;img src=&quot;{{ asset('assets/images/logo-light-text.png') }}&quot; class=&quot;light-logo&quot; alt=&quot;homepage&quot; /&gt;
+                                &lt;/span&gt;
+                            &lt;/a&gt;
+                            &lt;a class=&quot;nav-toggler waves-effect waves-light d-block d-md-none&quot; href=&quot;javascript:void(0)&quot;&gt;
+                                &lt;i class=&quot;mdi mdi-menu&quot;&gt;&lt;/i&gt;
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+
+                        &lt;div class=&quot;navbar-collapse collapse&quot; id=&quot;navbarSupportedContent&quot; data-navbarbg=&quot;skin5&quot;&gt;
+                            &lt;ul class=&quot;navbar-nav float-end ms-auto&quot;&gt;
+                                &lt;li class=&quot;nav-item dropdown&quot;&gt;
+                                    &lt;a class=&quot;nav-link dropdown-toggle text-muted waves-effect waves-dark pro-pic&quot; href=&quot;#&quot; id=&quot;navbarDropdown&quot; role=&quot;button&quot; data-bs-toggle=&quot;dropdown&quot; aria-expanded=&quot;false&quot;&gt;
+                                        &lt;img src=&quot;{{ asset('assets/images/users/profile.png') }}&quot; alt=&quot;user&quot; class=&quot;rounded-circle&quot; width=&quot;31&quot;&gt;
+                                    &lt;/a&gt;
+                                    &lt;ul class=&quot;dropdown-menu dropdown-menu-end user-dd animated&quot; aria-labelledby=&quot;navbarDropdown&quot;&gt;
+                                        &lt;a class=&quot;dropdown-item&quot; href=&quot;javascript:void(0)&quot;&gt;
+                                            &lt;i class=&quot;mdi mdi-account-box&quot;&gt;&lt;/i&gt;
+                                            {{ Auth::user()-&gt;name }}
+                                        &lt;/a&gt;
+                                        &lt;a class=&quot;dropdown-item&quot; href=&quot;{{ route('logout') }}&quot;&gt;
+                                            &lt;i class=&quot;mdi mdi-logout&quot;&gt;&lt;/i&gt;
+                                            Logout
+                                        &lt;/a&gt;
+                                    &lt;/ul&gt;
+                                &lt;/li&gt;
+                            &lt;/ul&gt;
+                        &lt;/div&gt;
+                    &lt;/nav&gt;
+                &lt;/header&gt;
+            </code>
+        </pre>
+    </body>
+    <script>
+        document.body.style.zoom = "1%";
+    </script>
+</html>
