@@ -198,60 +198,74 @@
 
             public function exportExcel()
             {
-                $transactions = Transaction::with(['member', 'user', 'transactionDetail.product'])
-                -&gt;orderBy('created_at', 'desc')
-                -&gt;get();
+                $transactions = Transaction::with('user', 'member', 'transactionDetail.product')-&gt;orderBy('created_at', 'desc')-&gt;get();
 
-            $spreadsheet = new Spreadsheet();
-            $sheet = $spreadsheet-&gt;getActiveSheet();
+                $spreadsheet = new Spreadsheet();
+                $sheet = $spreadsheet-&gt;getActiveSheet();
 
-            $headers = ['ID Transaksi', 'Status Pelanggan', 'Nama Pelanggan', 'No HP Pelanggan', 'Poin Pelanggan', 'Produk', 'Total Harga', 'Total Bayar', 'Total Diskon Poin', 'Total Kembalian', 'Tanggal Transaksi'];
-            $columnLetter = 'A';
+                $sheet-&gt;mergeCells('A1:K1');
+                $sheet-&gt;setCellValue('A1', 'Laporan Data Penjualan Toko IndoApril');
 
-            foreach ($headers as $header) {
-                $sheet-&gt;setCellValue($columnLetter . '1', $header);
-                $columnLetter++;
-            }
-
-            $rowNumber = 2;
-            foreach ($transactions as $transaction) {
-                $sheet-&gt;setCellValue('A' . $rowNumber, $transaction-&gt;id);
-                $sheet-&gt;setCellValue('B' . $rowNumber, $transaction-&gt;member ? 'Member' : 'Bukan Member');
-                $sheet-&gt;setCellValue('C' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;name : '-');
-                $sheet-&gt;setCellValue('D' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;phone_number : '-');
-                $sheet-&gt;setCellValue('E' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;points : '-');
-
-                $productDetails = [];
-                foreach ($transaction-&gt;transactionDetail as $detail) {
-                    $productName = $detail-&gt;product-&gt;name;
-                    $quantity = $detail-&gt;quantity;
-                    $subtotal = $detail-&gt;subtotal;
-                    $formattedSubtotal = 'Rp ' . number_format($subtotal, 0, ',', '.');
-                    $productDetails[] = &quot;{$productName} ({$quantity} : {$formattedSubtotal})&quot;;
-                }
-                $sheet-&gt;setCellValue('F' . $rowNumber, implode(', ', $productDetails));
-
-                $sheet-&gt;setCellValue('G' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;total_price, 0, ',', '.'));
-                $sheet-&gt;setCellValue('H' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;amount_paid, 0, ',', '.'));
-                $sheet-&gt;setCellValue('I' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;points_used, 0, ',', '.'));
-                $sheet-&gt;setCellValue('J' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;amount_change, 0, ',', '.'));
-                $sheet-&gt;setCellValue('K' . $rowNumber, $transaction-&gt;created_at-&gt;format('Y-m-d H:i:s'));
+                $sheet-&gt;getStyle('A1')-&gt;getFont()-&gt;setBold(true)-&gt;setSize(14);
+                $sheet-&gt;getStyle('A1')-&gt;getFill()-&gt;setFillType(Fill::FILL_SOLID);
+                $sheet-&gt;getStyle('A1')-&gt;getFill()-&gt;getStartColor()-&gt;setARGB('bebebe');
+                $sheet-&gt;getStyle('A1')-&gt;getAlignment()-&gt;setHorizontal(Alignment::HORIZONTAL_CENTER);
                 
-                $rowNumber++;
-            }
+                $headers = ['ID Transaksi', 'Status Pelanggan', 'Nama Pelanggan', 'No HP Pelanggan', 'Poin Pelanggan', 'Produk', 'Total Harga', 'Total Bayar', 'Total Diskon Poin', 'Total Kembalian', 'Tanggal Transaksi'];
+                $columnLetter = 'A';
+                
+                foreach($headers as $header) {
+                    $sheet-&gt;setCellValue($columnLetter . '2' , $header);
+                    $sheet-&gt;getStyle($columnLetter . '2')-&gt;getFont()-&gt;setBold(true);
+                    $sheet-&gt;getStyle($columnLetter . '2')-&gt;getFill()-&gt;setFillType(Fill::FILL_SOLID);
+                    $sheet-&gt;getStyle($columnLetter . '2')-&gt;getFill()-&gt;getStartColor()-&gt;setARGB('dcdcdc');
+                    $sheet-&gt;getStyle($columnLetter . '2')-&gt;getBorders()-&gt;getAllBorders()-&gt;setBorderStyle(Border::BORDER_THIN);
+                    $sheet-&gt;getColumnDimension($columnLetter)-&gt;setAutoSize(true);
+                    $columnLetter++;
+                }
 
-            $filePath = 'exports/laporan-penjualan.xlsx';
-            $storagePath = storage_path('app/' . $filePath);
-            $directory = dirname($storagePath);
-            
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
-            }
+                $rowNumber = 3;
+                foreach($transactions as $transaction) {
+                    $sheet-&gt;setCellValue('A' . $rowNumber, $transaction-&gt;id);
+                    $sheet-&gt;setCellValue('B' . $rowNumber, $transaction-&gt;member ? 'Member' : 'Non Member');
+                    $sheet-&gt;setCellValue('C' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;name : '-');
+                    $sheet-&gt;setCellValue('D' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;phone_number : '-');
+                    $sheet-&gt;setCellValue('E' . $rowNumber, $transaction-&gt;member ? $transaction-&gt;member-&gt;points : '-');
 
-            $writer = new Xlsx($spreadsheet);
-            $writer-&gt;save($storagePath);
+                    $productDetails = [];
+                    foreach($transaction-&gt;transactionDetail as $item) {
+                        $productName = $item-&gt;product-&gt;name;
+                        $quantity = $item-&gt;quantity;
+                        $subtotal = 'Rp. ' . number_format($item-&gt;subtotal, 0, ',', '.');
+                        $productDetails[] = &quot;{$productName} ({$quantity} : {$subtotal})&quot;;
+                    }
+                    $sheet-&gt;setCellValue('F' . $rowNumber, implode(',', $productDetails));
 
-            return response()-&gt;download($storagePath)-&gt;deleteFileAfterSend(true);
+                    $sheet-&gt;setCellValue('G' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;total, 0, ',', '.'));
+                    $sheet-&gt;setCellValue('H' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;amount_paid, 0, ',', '.'));
+                    $sheet-&gt;setCellValue('I' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;points_used, 0, ',', '.'));
+                    $sheet-&gt;setCellValue('J' . $rowNumber, 'Rp. ' . number_format($transaction-&gt;amount_change, 0, ',', '.'));
+                    $sheet-&gt;setCellValue('K' . $rowNumber, $transaction-&gt;created_at-&gt;format('Y-m-d H:i:s'));
+                    $rowNumber++;
+                }
+
+                $lastColumn = chr(ord('A') + count($headers) - 1);
+                $lastRow = $rowNumber - 1;
+                $dataRange = &quot;A2:{$lastColumn}{$lastRow}&quot;;
+                $sheet-&gt;getStyle($dataRange)-&gt;getBorders()-&gt;getAllBorders()-&gt;setBorderStyle(Border::BORDER_THIN);
+
+                $filePath = 'exports/laporan-penjualan.xlsx';
+                $storagePath = storage_path('app/' . $filePath);
+                $directory = dirname($storagePath);
+
+                if(!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                $writer = new Xlsx($spreadsheet);
+                $writer-&gt;save($storagePath);
+
+                return response()-&gt;download($storagePath)-&gt;deleteFileAfterSend(true);
             }
         }
     </code>
